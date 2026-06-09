@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hey Coach — Parent View</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Coach Parent View">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Serif+Display&display=swap');
+  :root {
+    --bg:#F0EDE8; --surface:#FAFAF7; --card:#FFFFFF;
+    --accent:#5B6AF0; --accent2:#A8C5A0; --warn:#E8824A;
+    --danger:#D94F4F; --text:#1A1A2E; --muted:#7A7A8C;
+    --border:#E2DDD6; --parent:#2D5A3D;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 60px;}
+
+  /* HEADER */
+  header{background:var(--parent);padding:16px 20px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
+  .logo{font-family:'DM Serif Display',serif;font-size:1.4rem;color:#B8D9C4;letter-spacing:-0.5px;}
+  .logo span{color:white;}
+  .tagline{font-size:0.72rem;color:#7AAD8A;margin-top:1px;}
+  .view-badge{background:rgba(255,255,255,0.15);color:white;font-size:0.72rem;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:0.04em;}
+
+  /* STATUS CARD */
+  .status-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:16px 20px 8px;}
+  .stat-card{background:var(--card);border-radius:14px;padding:14px 14px 12px;text-align:center;box-shadow:0 1px 5px rgba(0,0,0,0.05);}
+  .stat-card .num{font-size:2rem;font-weight:600;line-height:1;margin-bottom:3px;}
+  .stat-card .lbl{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;}
+  .stat-card.red .num{color:var(--danger);}
+  .stat-card.amber .num{color:var(--warn);}
+  .stat-card.green .num{color:#3A8A3A;}
+
+  /* LAST SEEN */
+  .last-seen{margin:0 20px 14px;padding:12px 16px;background:var(--card);border-radius:14px;display:flex;align-items:center;gap:10px;border:1px solid var(--border);}
+  .pulse-dot{width:10px;height:10px;border-radius:50%;background:var(--accent2);flex-shrink:0;animation:blink 2s infinite;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .pulse-dot.inactive{background:var(--border);animation:none;}
+  .ls-text{font-size:0.85rem;}
+  .ls-text .ls-title{font-weight:600;}
+  .ls-text .ls-sub{font-size:0.75rem;color:var(--muted);}
+
+  /* SECTION */
+  .section-head{padding:2px 20px 8px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:600;}
+
+  /* CARDS */
+  .cards{padding:0 20px;display:flex;flex-direction:column;gap:10px;}
+  .card{background:var(--card);border-radius:16px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 1px 5px rgba(0,0,0,0.04);border-left:4px solid var(--border);}
+  .card.urgent{border-left-color:var(--danger);}
+  .card.soon{border-left-color:var(--warn);}
+  .card.ok{border-left-color:var(--accent2);}
+  .card.all{border-left-color:var(--border);}
+  .card-icon{font-size:1.4rem;line-height:1;flex-shrink:0;margin-top:3px;}
+  .card-body{flex:1;}
+  .card-title{font-weight:600;font-size:0.92rem;margin-bottom:2px;}
+  .card-due{font-size:0.78rem;color:var(--muted);}
+  .days-label{display:inline-block;margin-left:5px;font-weight:600;padding:1px 7px;border-radius:20px;font-size:0.7rem;}
+  .urgent .days-label{background:#FDEAEA;color:var(--danger);}
+  .soon .days-label{background:#FEF0E6;color:var(--warn);}
+  .ok .days-label,.all .days-label{background:#EAF4EA;color:#3A8A3A;}
+  .card-meta{font-size:0.72rem;color:var(--muted);margin-top:3px;}
+  .repeat-badge{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1px 7px;font-size:0.68rem;color:var(--muted);}
+
+  /* NUDGE */
+  .nudge-section{margin:16px 20px 0;}
+  .nudge-section h3{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;font-weight:600;}
+  .nudge-card{background:var(--card);border-radius:16px;padding:14px 16px;border:1px solid var(--border);}
+  .nudge-desc{font-size:0.85rem;color:var(--muted);margin-bottom:10px;line-height:1.45;}
+  .nudge-btns{display:flex;gap:8px;flex-wrap:wrap;}
+  .nudge-btn{font-size:0.8rem;padding:8px 14px;border-radius:12px;border:none;cursor:pointer;font-family:inherit;font-weight:600;display:flex;align-items:center;gap:5px;}
+  .nudge-btn.gentle{background:#EEF0FD;color:var(--accent);}
+  .nudge-btn.direct{background:#FEF0E6;color:var(--warn);}
+  .nudge-btn.urgent-btn{background:#FDEAEA;color:var(--danger);}
+  .nudge-btn:hover{filter:brightness(0.95);}
+  .nudge-result{margin-top:10px;font-size:0.82rem;padding:8px 12px;border-radius:10px;background:#EAF4EA;color:#2A6A2A;display:none;}
+  .nudge-result.show{display:block;}
+
+  /* ADD ITEM (parent can add too) */
+  .add-section{margin:16px 20px 0;}
+  .add-section h3{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:10px;font-weight:600;}
+  .add-card{background:var(--card);border-radius:16px;padding:14px 16px;border:1px solid var(--border);}
+  .add-card label{display:block;font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin:10px 0 4px;}
+  .add-card label:first-child{margin-top:0;}
+  .add-card input,.add-card select{width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:inherit;font-size:0.9rem;background:var(--bg);color:var(--text);outline:none;}
+  .add-card input:focus,.add-card select:focus{border-color:var(--accent);}
+  .add-btns{display:flex;gap:8px;margin-top:12px;}
+  .btn{flex:1;padding:10px;border-radius:10px;font-family:inherit;font-size:0.88rem;font-weight:600;cursor:pointer;border:none;}
+  .btn-p{background:var(--parent);color:white;}
+  .btn-s{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
+
+  /* TABS */
+  .tabs{display:flex;gap:0;margin:14px 20px 0;background:var(--card);border-radius:12px;padding:4px;border:1px solid var(--border);}
+  .tab{flex:1;padding:7px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:0.82rem;font-weight:500;color:var(--muted);border-radius:9px;transition:all 0.15s;}
+  .tab.active{background:var(--parent);color:white;font-weight:600;}
+
+  /* EMPTY */
+  .empty{text-align:center;padding:24px;color:var(--muted);font-size:0.88rem;}
+
+  /* NOTIFICATION SETUP */
+  .notif-setup{margin:10px 20px 0;padding:12px 16px;border-radius:14px;background:#EEF0FD;border:1px solid rgba(91,106,240,0.2);display:flex;align-items:center;gap:10px;font-size:0.83rem;}
+  .notif-setup button{margin-left:auto;font-size:0.76rem;padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-family:inherit;font-weight:600;background:var(--accent);color:white;white-space:nowrap;}
+
+  /* INFO BOX */
+  .info-box{margin:12px 20px 0;background:#FFF9E6;border:1px solid #F0E0A0;border-radius:14px;padding:12px 16px;font-size:0.82rem;line-height:1.5;color:#7A5A00;}
+  .info-box strong{display:block;margin-bottom:3px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Hey <span>Coach</span></div>
+    <div class="tagline">parent overview</div>
+  </div>
+  <div class="view-badge">👁 Parent View</div>
+</header>
+
+<!-- Notification setup -->
+<div class="notif-setup" id="parentNotifSetup">
+  <span>🔔 Get alerts on <em>your</em> phone when something is urgent</span>
+  <button onclick="setupParentNotifs()">Turn on</button>
+</div>
+
+<!-- Info box -->
+<div class="info-box">
+  <strong>ℹ️ How this works</strong>
+  This view reads the same reminders as your son's app. You can see everything, add items for him, and send gentle nudges. He won't see that you've been looking.
+</div>
+
+<!-- Status stats -->
+<div class="status-grid">
+  <div class="stat-card red"><div class="num" id="statUrgent">0</div><div class="lbl">Urgent</div></div>
+  <div class="stat-card amber"><div class="num" id="statSoon">0</div><div class="lbl">This week</div></div>
+  <div class="stat-card green"><div class="num" id="statTotal">0</div><div class="lbl">Total</div></div>
+</div>
+
+<!-- Last activity -->
+<div class="last-seen">
+  <div class="pulse-dot" id="activityDot"></div>
+  <div class="ls-text">
+    <div class="ls-title" id="activityTitle">Checking…</div>
+    <div class="ls-sub" id="activitySub"></div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" id="tabActive" onclick="switchTab('active')">⚠️ Needs action</button>
+  <button class="tab" id="tabAll" onclick="switchTab('all')">📋 All reminders</button>
+</div>
+
+<!-- Card list -->
+<div style="height:10px"></div>
+<div class="cards" id="cardList">
+  <div class="empty" id="emptyMsg">Loading…</div>
+</div>
+
+<!-- Nudge section -->
+<div class="nudge-section">
+  <h3>💬 Send a nudge</h3>
+  <div class="nudge-card">
+    <div class="nudge-desc">Generate a short, warm message you can copy and send to him via text or WhatsApp.</div>
+    <div class="nudge-btns">
+      <button class="nudge-btn gentle" onclick="generateNudge('gentle')">😊 Gentle reminder</button>
+      <button class="nudge-btn direct" onclick="generateNudge('direct')">📣 More direct</button>
+      <button class="nudge-btn urgent-btn" onclick="generateNudge('urgent')">🚨 Urgent</button>
+    </div>
+    <div class="nudge-result" id="nudgeResult"></div>
+  </div>
+</div>
+
+<!-- Add item as parent -->
+<div class="add-section">
+  <h3>➕ Add a reminder for him</h3>
+  <div class="add-card">
+    <label>What is it?</label>
+    <input type="text" id="p_title" placeholder="e.g. GP appointment, Rego renewal…">
+    <label>Category</label>
+    <select id="p_cat">
+      <option value="💊">💊 Medication / Script</option>
+      <option value="🪪">🪪 Licence / ID</option>
+      <option value="📱">📱 Phone / Mobile</option>
+      <option value="💡">💡 Utility bill</option>
+      <option value="💳">💳 Payment / Bill</option>
+      <option value="🏥">🏥 Health appointment</option>
+      <option value="🚗">🚗 Car / Registration</option>
+      <option value="📋">📋 Other</option>
+    </select>
+    <label>Due date</label>
+    <input type="date" id="p_date">
+    <label>Remind him (days before)</label>
+    <select id="p_remind">
+      <option value="3">3 days before</option>
+      <option value="5" selected>5 days before</option>
+      <option value="7">7 days before</option>
+      <option value="10">10 days before</option>
+      <option value="14">14 days before</option>
+    </select>
+    <label>Repeats?</label>
+    <select id="p_repeat">
+      <option value="none">No repeat</option>
+      <option value="monthly">Every month</option>
+      <option value="quarterly">Every 3 months</option>
+      <option value="biannual">Every 6 months</option>
+      <option value="yearly">Every year</option>
+    </select>
+    <div class="add-btns">
+      <button class="btn btn-s" onclick="clearParentForm()">Clear</button>
+      <button class="btn btn-p" onclick="addAsParent()">Add to his app →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'heycoach_items_v2';
+let items = [];
+let currentTab = 'active';
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('p_date').value = new Date().toISOString().split('T')[0];
+  loadItems();
+  checkParentNotifState();
+
+  // Poll for changes every 30 seconds (simulates live sync)
+  setInterval(loadItems, 30000);
+});
+
+function loadItems() {
+  items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  renderAll();
+}
+
+// ══════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════
+function daysUntil(d) {
+  const t = new Date(); t.setHours(0,0,0,0);
+  return Math.round((new Date(d+'T00:00:00') - t) / 86400000);
+}
+function urgencyCls(d) { return d<=5?'urgent':d<=14?'soon':'ok'; }
+function daysLbl(d) { return d<0?'overdue!':d===0?'today!':d===1?'tomorrow':`${d} days`; }
+
+function renderAll() {
+  // Roll over past repeating items (mirror of main app logic)
+  items.forEach(item => {
+    if (item.repeat !== 'none' && daysUntil(item.dueDate) < 0) {
+      const d = new Date(item.dueDate+'T00:00:00');
+      if (item.repeat==='monthly')   d.setMonth(d.getMonth()+1);
+      if (item.repeat==='quarterly') d.setMonth(d.getMonth()+3);
+      if (item.repeat==='biannual')  d.setMonth(d.getMonth()+6);
+      if (item.repeat==='yearly')    d.setFullYear(d.getFullYear()+1);
+      item.dueDate = d.toISOString().split('T')[0];
+    }
+  });
+
+  const urgent = items.filter(i => { const d=daysUntil(i.dueDate); return d>=0 && d<=5; }).length;
+  const soon = items.filter(i => { const d=daysUntil(i.dueDate); return d>5 && d<=14; }).length;
+  document.getElementById('statUrgent').textContent = urgent;
+  document.getElementById('statSoon').textContent = soon;
+  document.getElementById('statTotal').textContent = items.length;
+
+  // Activity indicator
+  const dot = document.getElementById('activityDot');
+  const title = document.getElementById('activityTitle');
+  const sub = document.getElementById('activitySub');
+
+  if (items.length === 0) {
+    dot.className = 'pulse-dot inactive';
+    title.textContent = 'No reminders set up yet';
+    sub.textContent = 'His app is empty — add some reminders below';
+  } else if (urgent > 0) {
+    dot.className = 'pulse-dot'; dot.style.background = '#D94F4F';
+    title.textContent = `${urgent} item${urgent>1?'s':''} need attention urgently`;
+    sub.textContent = 'He may need a nudge';
+  } else {
+    dot.className = 'pulse-dot';
+    title.textContent = `${items.length} reminder${items.length>1?'s':''} active`;
+    sub.textContent = 'Nothing urgent right now';
+  }
+
+  renderCards();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabActive').className = 'tab' + (tab==='active'?' active':'');
+  document.getElementById('tabAll').className = 'tab' + (tab==='all'?' active':'');
+  renderCards();
+}
+
+function renderCards() {
+  const list = document.getElementById('cardList');
+  [...list.querySelectorAll('.card')].forEach(c=>c.remove());
+
+  let display;
+  if (currentTab === 'active') {
+    display = items
+      .filter(i => daysUntil(i.dueDate) <= i.remindDaysBefore || daysUntil(i.dueDate) <= 0)
+      .sort((a,b) => daysUntil(a.dueDate)-daysUntil(b.dueDate));
+  } else {
+    display = [...items].sort((a,b) => daysUntil(a.dueDate)-daysUntil(b.dueDate));
+  }
+
+  const emptyMsg = document.getElementById('emptyMsg');
+  if (display.length === 0) {
+    emptyMsg.style.display = 'block';
+    emptyMsg.textContent = currentTab === 'active'
+      ? "Nothing needs attention right now ✅"
+      : "No reminders set up yet. Add some below.";
+    return;
+  }
+  emptyMsg.style.display = 'none';
+
+  const repeatLbls = {none:'',monthly:'Monthly',quarterly:'Every 3 months',biannual:'Every 6 months',yearly:'Yearly'};
+
+  display.forEach(item => {
+    const days = daysUntil(item.dueDate);
+    const cls = currentTab === 'all' && days > 14 ? 'all' : urgencyCls(days);
+    const due = new Date(item.dueDate+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
+    const added = item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-AU',{day:'numeric',month:'short'}) : '';
+
+    const card = document.createElement('div');
+    card.className = `card ${cls}`;
+    card.innerHTML = `
+      <div class="card-icon">${item.icon}</div>
+      <div class="card-body">
+        <div class="card-title">${item.title}</div>
+        <div class="card-due">Due ${due} <span class="days-label">${daysLbl(days)}</span></div>
+        <div class="card-meta">
+          Remind ${item.remindDaysBefore} days before
+          ${repeatLbls[item.repeat] ? ` · <span class="repeat-badge">${repeatLbls[item.repeat]}</span>` : ''}
+          ${added ? ` · Added ${added}` : ''}
+        </div>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+// ══════════════════════════════════════════
+//  NUDGE GENERATOR (AI)
+// ══════════════════════════════════════════
+async function generateNudge(tone) {
+  const result = document.getElementById('nudgeResult');
+  result.className = 'nudge-result show';
+  result.textContent = 'Generating message…';
+
+  const urgent = items.filter(i => { const d=daysUntil(i.dueDate); return d>=0 && d<=7; });
+  if (urgent.length === 0) {
+    result.textContent = "Nothing urgent right now — no nudge needed!";
+    return;
+  }
+
+  const itemList = urgent.map(i => `${i.title} (due in ${daysUntil(i.dueDate)} days)`).join(', ');
+  const toneGuide = {
+    gentle: "warm, low-pressure, supportive — like a caring parent who trusts their kid",
+    direct: "clear and a bit more direct but still kind — no fluff, just the facts",
+    urgent: "urgent and clear — conveys this really needs to happen today or tomorrow"
+  }[tone];
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 200,
+        system: `You write short WhatsApp/SMS messages from a parent to their 25-year-old son who has ADHD and autism. The tone should be: ${toneGuide}. Write as if you are the parent (use "I" not "your mum"). Keep it to 2-3 sentences max. No emojis unless it really fits. Just write the message text, nothing else.`,
+        messages: [{ role: "user", content: `Write a ${tone} nudge about: ${itemList}` }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || "Couldn't generate — try again.";
+    result.textContent = `"${text.trim()}" — tap to copy`;
+    result.style.cursor = 'pointer';
+    result.onclick = () => { navigator.clipboard?.writeText(text.trim()); result.textContent = '✅ Copied to clipboard!'; setTimeout(() => result.textContent = `"${text.trim()}" — tap to copy`, 2000); };
+  } catch(e) {
+    result.textContent = "Couldn't connect — try again.";
+  }
+}
+
+// ══════════════════════════════════════════
+//  ADD AS PARENT
+// ══════════════════════════════════════════
+function addAsParent() {
+  const title = document.getElementById('p_title').value.trim();
+  const date = document.getElementById('p_date').value;
+  if (!title || !date) { alert('Fill in a name and date.'); return; }
+  items.push({
+    id: Date.now(),
+    title,
+    icon: document.getElementById('p_cat').value,
+    dueDate: date,
+    remindDaysBefore: parseInt(document.getElementById('p_remind').value),
+    repeat: document.getElementById('p_repeat').value,
+    createdAt: new Date().toISOString(),
+    addedBy: 'parent'
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  renderAll();
+  clearParentForm();
+  // Flash confirmation
+  const btn = document.querySelector('.btn-p');
+  btn.textContent = '✅ Added!';
+  setTimeout(() => btn.textContent = 'Add to his app →', 2000);
+}
+
+function clearParentForm() {
+  document.getElementById('p_title').value = '';
+  document.getElementById('p_date').value = new Date().toISOString().split('T')[0];
+}
+
+// ══════════════════════════════════════════
+//  PARENT NOTIFICATIONS
+// ══════════════════════════════════════════
+function checkParentNotifState() {
+  if (!('Notification' in window)) { document.getElementById('parentNotifSetup').style.display='none'; return; }
+  if (Notification.permission === 'granted') {
+    document.getElementById('parentNotifSetup').style.display = 'none';
+    scheduleParentChecks();
+  }
+}
+
+async function setupParentNotifs() {
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') {
+    document.getElementById('parentNotifSetup').style.display = 'none';
+    scheduleParentChecks();
+    new Notification('Parent view is ready 👁', { body: "You'll get an alert if something urgent comes up for your son.", tag:'parent-welcome' });
+  }
+}
+
+function scheduleParentChecks() {
+  // Check every 4 hours
+  setInterval(runParentCheck, 4 * 3600000);
+  // And check now
+  runParentCheck();
+}
+
+function runParentCheck() {
+  if (Notification.permission !== 'granted') return;
+  const current = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const overdue = current.filter(i => daysUntil(i.dueDate) < 0);
+  const todayItems = current.filter(i => daysUntil(i.dueDate) === 0);
+  const critical = current.filter(i => { const d=daysUntil(i.dueDate); return d>=1 && d<=2; });
+
+  if (overdue.length > 0) {
+    new Notification('⚠️ Hey Coach — overdue items', {
+      body: `Your son has ${overdue.length} overdue item${overdue.length>1?'s':''}: ${overdue.map(i=>i.title).join(', ')}`,
+      tag: 'parent-overdue', requireInteraction: true
+    });
+  } else if (todayItems.length > 0) {
+    new Notification('📅 Hey Coach — due today', {
+      body: `Due today: ${todayItems.map(i=>i.title).join(', ')}`,
+      tag: 'parent-today'
+    });
+  } else if (critical.length > 0) {
+    new Notification('👀 Hey Coach — coming up', {
+      body: `Coming up soon: ${critical.map(i=>`${i.title} (${daysUntil(i.dueDate)} days)`).join(', ')}`,
+      tag: 'parent-upcoming'
+    });
+  }
+}
+</script>
+</body>
+</html>
