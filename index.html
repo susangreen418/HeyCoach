@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hey Coach</title>
+<title>Hey Coach — Ed</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Hey Coach">
 <link rel="manifest" href="manifest.json">
 <style>
@@ -18,14 +17,12 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 80px;}
 
-  /* HEADER */
   header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
   .logo{font-family:'DM Serif Display',serif;font-size:1.5rem;color:var(--accent);letter-spacing:-0.5px;}
   .logo span{color:var(--text);}
   .tagline{font-size:0.75rem;color:var(--muted);}
   .header-right{display:flex;gap:8px;align-items:center;}
 
-  /* NOTIFICATION BANNER */
   .notif-banner{margin:12px 20px 0;padding:12px 16px;border-radius:14px;font-size:0.85rem;display:none;align-items:center;gap:10px;}
   .notif-banner.show{display:flex;}
   .notif-banner.ok{background:#EAF4EA;border:1px solid #B8DDB8;color:#2A6A2A;}
@@ -33,14 +30,38 @@
   .notif-banner.error{background:#FDEAEA;border:1px solid #F0B8B8;color:#8A1010;}
   .notif-banner button{margin-left:auto;font-size:0.78rem;padding:4px 12px;border-radius:20px;border:none;cursor:pointer;font-family:inherit;font-weight:600;background:var(--accent);color:white;}
 
-  /* TODAY */
   .today-banner{margin:14px 20px 8px;background:linear-gradient(135deg,var(--accent) 0%,#8B5CF6 100%);border-radius:18px;padding:14px 18px;color:white;display:flex;align-items:center;gap:12px;}
   .t-date{font-size:0.75rem;opacity:0.8;}
   .t-greeting{font-weight:600;font-size:1rem;}
 
-  /* MIC */
-  .mic-zone{display:flex;flex-direction:column;align-items:center;padding:28px 20px 16px;gap:10px;}
-  .mic-btn{width:90px;height:90px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(91,106,240,0.35);transition:transform 0.15s;}
+  /* BREAK ALARM OVERLAY */
+  .break-overlay{position:fixed;inset:0;z-index:200;background:rgba(15,15,40,0.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:30px;}
+  .break-overlay.show{display:flex;}
+  .break-title{font-family:'DM Serif Display',serif;font-size:2.2rem;color:white;text-align:center;line-height:1.2;}
+  .break-subtitle{font-size:1rem;color:rgba(255,255,255,0.7);text-align:center;line-height:1.5;}
+  .break-items{display:flex;flex-direction:column;gap:12px;width:100%;max-width:300px;}
+  .break-item{background:rgba(255,255,255,0.1);border:1.5px solid rgba(255,255,255,0.2);border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:background 0.15s;}
+  .break-item:active{background:rgba(255,255,255,0.2);}
+  .break-item.done{background:rgba(168,197,160,0.3);border-color:#A8C5A0;}
+  .break-item-icon{font-size:1.8rem;}
+  .break-item-text{color:white;font-size:1rem;font-weight:500;}
+  .break-item-check{margin-left:auto;font-size:1.2rem;opacity:0;}
+  .break-item.done .break-item-check{opacity:1;}
+  .break-done-btn{background:var(--accent2);color:white;border:none;border-radius:16px;padding:16px 40px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;opacity:0.4;transition:opacity 0.2s;}
+  .break-done-btn.ready{opacity:1;}
+  .break-timer{font-size:0.8rem;color:rgba(255,255,255,0.5);}
+
+  /* BREAK STATUS BAR */
+  .break-status{margin:0 20px 12px;background:var(--card);border-radius:14px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);}
+  .bs-left{display:flex;align-items:center;gap:10px;}
+  .bs-icon{font-size:1.3rem;}
+  .bs-text .bs-title{font-size:0.88rem;font-weight:600;}
+  .bs-text .bs-sub{font-size:0.75rem;color:var(--muted);}
+  .bs-toggle{background:var(--bg);border:1.5px solid var(--border);border-radius:20px;padding:5px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text);}
+  .bs-toggle.on{background:var(--accent);border-color:var(--accent);color:white;}
+
+  .mic-zone{display:flex;flex-direction:column;align-items:center;padding:24px 20px 14px;gap:10px;}
+  .mic-btn{width:88px;height:88px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(91,106,240,0.35);transition:transform 0.15s;}
   .mic-btn:hover{transform:scale(1.05);}
   .mic-btn.listening{animation:pulse 1.4s infinite;background:#E8824A;}
   .mic-btn.processing{background:var(--accent2);}
@@ -49,15 +70,13 @@
   .mic-label{font-size:0.85rem;color:var(--muted);font-weight:500;text-align:center;}
   .mic-label.listening{color:var(--warn);font-weight:600;}
 
-  /* TRANSCRIPT / REPLY */
-  .transcript-box,.ai-reply{margin:0 20px 12px;border-radius:14px;padding:12px 16px;font-size:0.92rem;line-height:1.5;display:none;}
+  .transcript-box,.ai-reply{margin:0 20px 10px;border-radius:14px;padding:12px 16px;font-size:0.92rem;line-height:1.5;display:none;}
   .transcript-box.visible,.ai-reply.visible{display:block;}
   .transcript-box{background:var(--card);border:1.5px solid var(--border);}
   .ai-reply{background:linear-gradient(135deg,#EEF0FD,#F5F0F9);border:1px solid rgba(91,106,240,0.15);}
   .small-label{font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:3px;}
   .ai-reply .small-label{color:var(--accent);font-weight:600;}
 
-  /* CARDS */
   .section-head{padding:2px 20px 8px;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-weight:600;}
   .cards{padding:0 20px;display:flex;flex-direction:column;gap:10px;}
   .card{background:var(--card);border-radius:16px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;box-shadow:0 1px 6px rgba(0,0,0,0.05);border-left:4px solid var(--border);position:relative;}
@@ -78,13 +97,11 @@
   .del-btn{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--border);cursor:pointer;font-size:0.95rem;padding:2px 5px;border-radius:6px;}
   .del-btn:hover{color:var(--danger);background:#FDEAEA;}
 
-  /* EXAMPLES */
-  .examples{margin:20px 20px 0;background:var(--card);border-radius:16px;padding:14px 16px;border:1px solid var(--border);}
+  .examples{margin:18px 20px 0;background:var(--card);border-radius:16px;padding:14px 16px;border:1px solid var(--border);}
   .examples h3{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:8px;}
-  .ex-line{display:flex;gap:7px;padding:4px 0;font-size:0.85rem;line-height:1.4;color:var(--text);border-bottom:1px solid var(--bg);}
+  .ex-line{display:flex;gap:7px;padding:4px 0;font-size:0.85rem;line-height:1.4;border-bottom:1px solid var(--bg);}
   .ex-line:last-child{border-bottom:none;}
 
-  /* MODAL */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:none;align-items:flex-end;justify-content:center;}
   .overlay.open{display:flex;}
   .modal{background:var(--card);border-radius:22px 22px 0 0;padding:22px 20px 40px;width:100%;max-width:520px;animation:slide-up 0.22s ease;}
@@ -97,39 +114,74 @@
   .btn{flex:1;padding:11px;border-radius:11px;font-family:inherit;font-size:0.92rem;font-weight:600;cursor:pointer;border:none;}
   .btn-p{background:var(--accent);color:white;}
   .btn-s{background:var(--bg);color:var(--text);border:1.5px solid var(--border);}
-
   .empty-state{text-align:center;padding:28px 20px;color:var(--muted);font-size:0.88rem;line-height:1.6;}
   .empty-state .big{font-size:2.2rem;margin-bottom:6px;}
+
+  /* FIREBASE STATUS */
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--accent2);display:inline-block;margin-right:5px;}
+  .sync-dot.offline{background:var(--border);}
 </style>
 </head>
 <body>
 
+<!-- BREAK ALARM OVERLAY -->
+<div class="break-overlay" id="breakOverlay">
+  <div class="break-title">Hey Ed! 👋<br>Break time.</div>
+  <div class="break-subtitle">Tick each one off, then tap Done.</div>
+  <div class="break-items">
+    <div class="break-item" id="bi-water" onclick="tickBreak('water')">
+      <div class="break-item-icon">💧</div>
+      <div class="break-item-text">Drink some water</div>
+      <div class="break-item-check">✅</div>
+    </div>
+    <div class="break-item" id="bi-food" onclick="tickBreak('food')">
+      <div class="break-item-icon">🍎</div>
+      <div class="break-item-text">Eat something</div>
+      <div class="break-item-check">✅</div>
+    </div>
+    <div class="break-item" id="bi-stand" onclick="tickBreak('stand')">
+      <div class="break-item-icon">🚶</div>
+      <div class="break-item-text">Stand up and move</div>
+      <div class="break-item-check">✅</div>
+    </div>
+  </div>
+  <button class="break-done-btn" id="breakDoneBtn" onclick="dismissBreak()">All done ✓</button>
+  <div class="break-timer" id="breakTimer"></div>
+</div>
+
 <header>
   <div>
     <div class="logo">Hey <span>Coach</span></div>
-    <div class="tagline">your daily organiser</div>
+    <div class="tagline"><span class="sync-dot" id="syncDot"></span><span id="syncLabel">connecting…</span></div>
   </div>
   <div class="header-right">
-    <button class="chip" id="notifBtn" onclick="requestNotifications()" style="font-size:0.8rem;">🔔 Allow alerts</button>
+    <button class="chip" id="notifBtn" onclick="requestNotifications()">🔔 Allow alerts</button>
     <button class="chip primary" onclick="openModal()">+ Add</button>
   </div>
 </header>
 
-<!-- Notification status -->
-<div class="notif-banner" id="notifBanner">
-  <span id="notifMsg"></span>
-</div>
+<div class="notif-banner" id="notifBanner"><span id="notifMsg"></span></div>
 
-<!-- Today -->
 <div class="today-banner">
   <div style="font-size:1.5rem">👋</div>
   <div>
     <div class="t-date" id="todayDate"></div>
-    <div class="t-greeting" id="greetingText">Here's what needs your attention</div>
+    <div class="t-greeting" id="greetingText">Hey Ed, here's what needs your attention</div>
   </div>
 </div>
 
-<!-- Mic -->
+<!-- BREAK STATUS -->
+<div class="break-status">
+  <div class="bs-left">
+    <div class="bs-icon">⏰</div>
+    <div class="bs-text">
+      <div class="bs-title" id="breakStatusTitle">Break reminders</div>
+      <div class="bs-sub" id="breakStatusSub">Every 90 min, 8am–4pm</div>
+    </div>
+  </div>
+  <button class="bs-toggle" id="breakToggle" onclick="toggleBreaks()">Turn on</button>
+</div>
+
 <div class="mic-zone">
   <button class="mic-btn" id="micBtn" onclick="toggleMic()">
     <svg class="mic-icon" viewBox="0 0 24 24"><path d="M12 1a4 4 0 0 1 4 4v7a4 4 0 0 1-8 0V5a4 4 0 0 1 4-4zm-1 18.93A8.001 8.001 0 0 1 4.07 13H6.1A6 6 0 0 0 18 13h1.93A8.001 8.001 0 0 1 13 19.93V22h-2v-2.07z"/></svg>
@@ -144,8 +196,8 @@
 <div class="cards" id="cardList">
   <div class="empty-state" id="emptyState">
     <div class="big">🎯</div>
-    Tap the mic and say something like:<br>
-    <em>"Add script renewal due in 10 days"</em>
+    Nothing urgent right now.<br>
+    <em>Tap the mic to add a reminder.</em>
   </div>
 </div>
 
@@ -153,12 +205,11 @@
   <h3>💬 What you can say</h3>
   <div class="ex-line"><span>🎙</span> "Add script renewal due in 12 days"</div>
   <div class="ex-line"><span>🎙</span> "Licence renewal due on the 15th of August"</div>
-  <div class="ex-line"><span>🎙</span> "Phone bill due in 3 weeks, remind me 5 days before"</div>
+  <div class="ex-line"><span>🎙</span> "Phone bill due in 3 weeks"</div>
   <div class="ex-line"><span>🎙</span> "Electricity bill every month on the 22nd"</div>
   <div class="ex-line"><span>🎙</span> "What's coming up this week?"</div>
 </div>
 
-<!-- Manual add modal -->
 <div class="overlay" id="modalOverlay" onclick="closeModalClick(event)">
   <div class="modal">
     <h2>Add a reminder</h2>
@@ -177,14 +228,6 @@
     </select>
     <label>Due date</label>
     <input type="date" id="m_date">
-    <label>Remind me (days before due)</label>
-    <select id="m_remind">
-      <option value="3">3 days before</option>
-      <option value="5" selected>5 days before</option>
-      <option value="7">7 days before</option>
-      <option value="10">10 days before</option>
-      <option value="14">14 days before</option>
-    </select>
     <label>Repeats?</label>
     <select id="m_repeat">
       <option value="none">No repeat</option>
@@ -200,47 +243,249 @@
   </div>
 </div>
 
+<!-- FIREBASE SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, onValue, set, push, remove, get } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// ══════════════════════════════════════════
+//  FIREBASE CONFIG — replace with yours
+// ══════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyCEZLo9teXcLQ35BoKqngXetHu1ulwVOX8",
+  authDomain: "heycoach-2f3d3.firebaseapp.com",
+  databaseURL: "https://heycoach-2f3d3-default-rtdb.firebaseio.com",
+  projectId: "heycoach-2f3d3",
+  storageBucket: "heycoach-2f3d3.firebasestorage.app",
+  messagingSenderId: "569968472083",
+  appId: "1:569968472083:web:8e5ca6d9a00c4657924fe6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const itemsRef = ref(db, 'items');
+
+// Expose db functions to global scope for the rest of the app
+window._fbDb = db;
+window._fbRef = ref;
+window._fbSet = set;
+window._fbPush = push;
+window._fbRemove = remove;
+window._fbItemsRef = itemsRef;
+window._fbReady = true;
+
+// Live sync — fires whenever data changes in Firebase
+onValue(itemsRef, (snapshot) => {
+  const data = snapshot.val();
+  if (data) {
+    window._items = Object.entries(data).map(([fbKey, item]) => ({ ...item, fbKey }));
+  } else {
+    window._items = [];
+  }
+  window.renderCards();
+  setSyncState(true);
+}, (error) => {
+  setSyncState(false);
+  // Fall back to localStorage
+  window._items = JSON.parse(localStorage.getItem('heycoach_items_v2') || '[]');
+  window.renderCards();
+});
+
+function setSyncState(online) {
+  document.getElementById('syncDot').className = 'sync-dot' + (online ? '' : ' offline');
+  document.getElementById('syncLabel').textContent = online ? 'synced' : 'offline — local only';
+}
+
+window._saveItem = async function(item) {
+  if (!window._fbReady) { localSave(item); return; }
+  const newRef = push(itemsRef);
+  await set(newRef, { ...item, fbKey: undefined });
+};
+
+window._deleteItem = async function(fbKey, localId) {
+  if (fbKey && window._fbReady) {
+    await remove(ref(db, 'items/' + fbKey));
+  } else {
+    window._items = window._items.filter(i => i.id !== localId);
+    localStorage.setItem('heycoach_items_v2', JSON.stringify(window._items));
+    window.renderCards();
+  }
+};
+
+window._updateItem = async function(fbKey, localId, updates) {
+  if (fbKey && window._fbReady) {
+    const itemRef = ref(db, 'items/' + fbKey);
+    const snap = await get(itemRef);
+    if (snap.exists()) await set(itemRef, { ...snap.val(), ...updates });
+  } else {
+    const item = window._items.find(i => i.id === localId);
+    if (item) Object.assign(item, updates);
+    localStorage.setItem('heycoach_items_v2', JSON.stringify(window._items));
+    window.renderCards();
+  }
+};
+
+function localSave(item) {
+  window._items.push(item);
+  localStorage.setItem('heycoach_items_v2', JSON.stringify(window._items));
+  window.renderCards();
+}
+
+</script>
+
 <script>
 // ══════════════════════════════════════════
-//  SHARED STORAGE KEY (syncs with parent)
+//  STATE
 // ══════════════════════════════════════════
-const STORAGE_KEY = 'heycoach_items_v2';
-let items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+window._items = JSON.parse(localStorage.getItem('heycoach_items_v2') || '[]');
 let recognition = null, isListening = false;
-let swReg = null;
+let breaksEnabled = localStorage.getItem('heycoach_breaks') === 'true';
+let breakTimers = [];
+let breakTicked = { water: false, food: false, stand: false };
+let breakCountdown = null;
 
 // ══════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('todayDate').textContent =
-    new Date().toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    new Date().toLocaleDateString('en-AU', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   document.getElementById('m_date').value = new Date().toISOString().split('T')[0];
-
-  await registerSW();
   checkNotifPermission();
+  updateBreakUI();
+  if (breaksEnabled) scheduleBreaks();
   renderCards();
-  checkAndSpeakUrgent();
-
-  // Check every hour while app is open
-  setInterval(() => { syncToSW(); checkInAppNotifications(); }, 3600000);
 });
 
 // ══════════════════════════════════════════
-//  SERVICE WORKER
+//  BREAK REMINDERS
 // ══════════════════════════════════════════
-async function registerSW() {
-  if (!('serviceWorker' in navigator)) return;
-  try {
-    swReg = await navigator.serviceWorker.register('./sw.js');
-    console.log('SW registered');
-    syncToSW();
-  } catch(e) { console.log('SW registration failed:', e); }
+function toggleBreaks() {
+  breaksEnabled = !breaksEnabled;
+  localStorage.setItem('heycoach_breaks', breaksEnabled);
+  if (breaksEnabled) {
+    requestNotifications();
+    scheduleBreaks();
+    speak("Break reminders are on, Ed. I'll check in with you every 90 minutes.");
+  } else {
+    clearBreakTimers();
+    speak("Break reminders turned off.");
+  }
+  updateBreakUI();
 }
 
-function syncToSW() {
-  if (!swReg || !swReg.active) return;
-  swReg.active.postMessage({ type: 'SCHEDULE_CHECK', items });
+function updateBreakUI() {
+  const btn = document.getElementById('breakToggle');
+  const sub = document.getElementById('breakStatusSub');
+  if (breaksEnabled) {
+    btn.textContent = 'Turn off';
+    btn.className = 'bs-toggle on';
+    sub.textContent = 'Every 90 min, 8am–4pm · Active';
+  } else {
+    btn.textContent = 'Turn on';
+    btn.className = 'bs-toggle';
+    sub.textContent = 'Every 90 min, 8am–4pm · Off';
+  }
+}
+
+function scheduleBreaks() {
+  clearBreakTimers();
+  // Break times: 9:30, 11:00, 12:30, 14:00, 15:30
+  const breakTimes = [[9,30],[11,0],[12,30],[14,0],[15,30]];
+  const now = new Date();
+
+  breakTimes.forEach(([h, m]) => {
+    const breakTime = new Date(now);
+    breakTime.setHours(h, m, 0, 0);
+    // If already passed today, skip
+    if (breakTime <= now) return;
+    const ms = breakTime - now;
+    const t = setTimeout(() => fireBreakAlarm(), ms);
+    breakTimers.push(t);
+  });
+}
+
+function clearBreakTimers() {
+  breakTimers.forEach(t => clearTimeout(t));
+  breakTimers = [];
+}
+
+function fireBreakAlarm() {
+  if (!breaksEnabled) return;
+
+  // Reschedule for next day
+  scheduleBreaks();
+
+  // Reset ticks
+  breakTicked = { water: false, food: false, stand: false };
+  ['water','food','stand'].forEach(k => {
+    document.getElementById('bi-'+k).classList.remove('done');
+  });
+  document.getElementById('breakDoneBtn').classList.remove('ready');
+
+  // Show overlay
+  document.getElementById('breakOverlay').classList.add('show');
+
+  // Speak loudly
+  speakBreak();
+
+  // Start 3-minute countdown before it can be dismissed without ticking
+  let secs = 180;
+  document.getElementById('breakTimer').textContent = '';
+  breakCountdown = setInterval(() => {
+    secs--;
+    if (secs <= 0) {
+      clearInterval(breakCountdown);
+      document.getElementById('breakTimer').textContent = '';
+      document.getElementById('breakDoneBtn').classList.add('ready');
+    }
+  }, 1000);
+
+  // Send notification too
+  if (Notification.permission === 'granted') {
+    new Notification("⏰ Break time, Ed!", {
+      body: "💧 Water  🍎 Food  🚶 Stand up",
+      tag: 'break-alarm',
+      requireInteraction: true,
+      vibrate: [300, 100, 300, 100, 300]
+    });
+  }
+}
+
+function speakBreak() {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const phrases = [
+    "Hey Ed, time for a break. Drink some water, eat something, and stand up.",
+    "Ed, break time. Water, food, stand up. Your body needs it.",
+    "Hey Ed! Step away for a moment. Drink water, grab some food, and get up."
+  ];
+  const msg = phrases[Math.floor(Math.random() * phrases.length)];
+  const u = new SpeechSynthesisUtterance(msg);
+  u.lang = 'en-AU'; u.rate = 0.9; u.volume = 1;
+  speechSynthesis.speak(u);
+}
+
+function tickBreak(key) {
+  breakTicked[key] = true;
+  document.getElementById('bi-'+key).classList.add('done');
+  // Check if all ticked
+  if (breakTicked.water && breakTicked.food && breakTicked.stand) {
+    document.getElementById('breakDoneBtn').classList.add('ready');
+    document.getElementById('breakTimer').textContent = '';
+    clearInterval(breakCountdown);
+  }
+}
+
+function dismissBreak() {
+  const allDone = breakTicked.water && breakTicked.food && breakTicked.stand;
+  if (!allDone) {
+    speak("Tick each one off first, Ed.");
+    return;
+  }
+  document.getElementById('breakOverlay').classList.remove('show');
+  speechSynthesis.cancel();
+  speak("Good work Ed. Back to it!");
 }
 
 // ══════════════════════════════════════════
@@ -248,110 +493,39 @@ function syncToSW() {
 // ══════════════════════════════════════════
 function checkNotifPermission() {
   if (!('Notification' in window)) {
-    showBanner('error', 'This browser doesn\'t support notifications. Try Chrome.');
-    document.getElementById('notifBtn').style.display = 'none';
-    return;
+    document.getElementById('notifBtn').style.display = 'none'; return;
   }
   if (Notification.permission === 'granted') {
     document.getElementById('notifBtn').style.display = 'none';
-    showBanner('ok', '🔔 Notifications are on — you\'ll get reminders automatically.');
-    scheduleDaily();
-  } else if (Notification.permission === 'denied') {
-    showBanner('warn', 'Notifications are blocked. Go to your browser settings to allow them for this page.');
-    document.getElementById('notifBtn').style.display = 'none';
+    showBanner('ok', '🔔 Notifications are on.');
   }
 }
 
 async function requestNotifications() {
   if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    document.getElementById('notifBtn').style.display = 'none'; return;
+  }
   const perm = await Notification.requestPermission();
   if (perm === 'granted') {
     document.getElementById('notifBtn').style.display = 'none';
-    showBanner('ok', '✅ Notifications are on! You\'ll get a reminder when things are coming up.');
-    scheduleDaily();
-    // Send a test notification
-    setTimeout(() => {
-      new Notification('Hey Coach is ready 👋', {
-        body: 'I\'ll remind you when something needs attention.',
-        icon: './icon-192.png',
-        tag: 'heycoach-welcome'
-      });
-    }, 1000);
-  } else {
-    showBanner('warn', 'Notifications were blocked. You can change this in your browser settings.');
+    showBanner('ok', "✅ Notifications on — I'll remind you when things need attention.");
   }
-}
-
-function scheduleDaily() {
-  // Schedule a check at 9am daily using setTimeout chain
-  scheduleDailyCheck();
-  // Also check now
-  checkInAppNotifications();
-}
-
-function scheduleDailyCheck() {
-  const now = new Date();
-  const next9am = new Date(now);
-  next9am.setHours(9, 0, 0, 0);
-  if (next9am <= now) next9am.setDate(next9am.getDate() + 1);
-  const ms = next9am - now;
-  setTimeout(() => {
-    checkInAppNotifications();
-    setInterval(checkInAppNotifications, 86400000); // then every 24h
-  }, ms);
-}
-
-function checkInAppNotifications() {
-  if (Notification.permission !== 'granted') return;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const urgent = [], upcoming = [];
-
-  items.forEach(item => {
-    const due = new Date(item.dueDate + 'T00:00:00');
-    const days = Math.round((due - today) / 86400000);
-    if (days < 0 || days > item.remindDaysBefore) return;
-    if (days <= 2) urgent.push({ ...item, days });
-    else upcoming.push({ ...item, days });
-  });
-
-  if (urgent.length > 0) {
-    const body = urgent.map(i =>
-      `${i.icon} ${i.title} — ${i.days === 0 ? 'TODAY' : i.days === 1 ? 'tomorrow' : i.days + ' days'}`
-    ).join('\n');
-    new Notification('⚠️ Hey Coach — action needed', {
-      body, tag: 'heycoach-urgent', requireInteraction: true,
-      icon: './icon-192.png'
-    });
-  } else if (upcoming.length > 0) {
-    const body = upcoming.map(i => `${i.icon} ${i.title} — ${i.days} days`).join('\n');
-    new Notification('👋 Hey Coach — coming up soon', {
-      body, tag: 'heycoach-upcoming', icon: './icon-192.png'
-    });
-  }
-}
-
-function showBanner(type, msg) {
-  const b = document.getElementById('notifBanner');
-  document.getElementById('notifMsg').textContent = msg;
-  b.className = `notif-banner show ${type}`;
-  if (type === 'ok') setTimeout(() => b.classList.remove('show'), 6000);
 }
 
 // ══════════════════════════════════════════
 //  VOICE
 // ══════════════════════════════════════════
-function toggleMic() {
-  isListening ? stopListening() : startListening();
-}
+function toggleMic() { isListening ? stopListening() : startListening(); }
 
 function startListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { showAiReply("Voice input needs Chrome or Safari. Use the + Add button instead."); return; }
+  if (!SR) { showAiReply("Voice needs Chrome. Use the + Add button."); return; }
   recognition = new SR();
   recognition.lang = 'en-AU'; recognition.interimResults = false;
   recognition.onstart = () => { isListening = true; micState('listening', 'Listening… go ahead'); };
   recognition.onresult = e => { const t = e.results[0][0].transcript; showTranscript(t); processVoice(t); };
-  recognition.onerror = () => { stopListening(); micState('', "Didn't catch that — tap to try again"); };
+  recognition.onerror = () => { stopListening(); micState('', "Didn't catch that — try again"); };
   recognition.onend = () => stopListening();
   recognition.start();
 }
@@ -363,11 +537,9 @@ function stopListening() {
 }
 
 function micState(cls, label) {
-  const btn = document.getElementById('micBtn');
-  btn.className = 'mic-btn' + (cls ? ' ' + cls : '');
-  const lbl = document.getElementById('micLabel');
-  lbl.textContent = label;
-  lbl.className = 'mic-label' + (cls ? ' ' + cls : '');
+  document.getElementById('micBtn').className = 'mic-btn' + (cls ? ' '+cls : '');
+  const l = document.getElementById('micLabel');
+  l.textContent = label; l.className = 'mic-label' + (cls ? ' '+cls : '');
 }
 
 function showTranscript(t) {
@@ -381,34 +553,33 @@ function showTranscript(t) {
 async function processVoice(transcript) {
   micState('processing', 'Thinking…');
   const today = new Date().toISOString().split('T')[0];
-  const existing = JSON.stringify(items.map(i => ({ id: i.id, title: i.title, dueDate: i.dueDate })));
+  const existing = JSON.stringify((window._items||[]).map(i=>({id:i.id,title:i.title,dueDate:i.dueDate})));
 
-  const sys = `You are "Hey Coach", a warm executive function assistant for a 25-year-old with ADHD and autism.
+  const sys = `You are "Hey Coach", a warm executive function assistant for Ed, a 25-year-old with ADHD and autism.
 Today: ${today}. Existing items: ${existing}
 
-Return ONLY valid JSON matching one of these schemas:
+IMPORTANT: Only show reminders when they are URGENT (2 days or less) or for money/bills (7 days or less). Do not remind about things far in advance.
 
-ADD: {"action":"add","title":"string","icon":"emoji (💊medication 🪪licence 📱phone 💡utility 💳bill 🏥health 🚗car 📋other)","dueDate":"YYYY-MM-DD","remindDaysBefore":number,"repeat":"none|monthly|quarterly|biannual|yearly","reply":"short warm confirmation"}
+Return ONLY valid JSON:
+
+ADD: {"action":"add","title":"string","icon":"emoji (💊medication 🪪licence 📱phone 💡utility 💳bill 🏥health 🚗car 📋other)","dueDate":"YYYY-MM-DD","remindDaysBefore":number,"repeat":"none|monthly|quarterly|biannual|yearly","reply":"short warm reply to Ed"}
 
 DELETE: {"action":"delete","matchTitle":"string","reply":"string"}
+QUERY: {"action":"query","reply":"short helpful answer"}
+UNCLEAR: {"action":"unclear","reply":"ask Ed to rephrase simply"}
 
-QUERY: {"action":"query","reply":"helpful short answer about upcoming items"}
-
-UNCLEAR: {"action":"unclear","reply":"ask to rephrase simply"}
-
-Rules: "in X days"=today+X, "in X weeks"=today+X*7, "next month"=+1 month, day-of-month without month=next occurrence. Medication defaults to monthly repeat. remindDaysBefore: bills=7, scripts/health=5, licences=10, never >14. Keep replies short and warm.`;
+Rules: "in X days"=today+X, "in X weeks"=today+X*7. Medication=monthly repeat. remindDaysBefore: bills/money=7, scripts/health=2, licences=3, never >10. Keep replies short, warm, use Ed's name.`;
 
   try {
     const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, system: sys, messages: [{ role: "user", content: transcript }] })
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1000, system:sys, messages:[{role:"user",content:transcript}] })
     });
     const data = await res.json();
     const raw = data.content?.[0]?.text || '{}';
     let result;
     try { result = JSON.parse(raw.replace(/```json|```/g,'').trim()); }
-    catch(e) { result = { action:'unclear', reply:"I didn't quite get that. Try: add script renewal due in 10 days" }; }
+    catch(e) { result = {action:'unclear',reply:"Didn't get that Ed — try: add script renewal due in 10 days"}; }
     micState('', 'Tap to talk to your coach');
     handleResult(result);
   } catch(e) {
@@ -417,53 +588,41 @@ Rules: "in X days"=today+X, "in X weeks"=today+X*7, "next month"=+1 month, day-o
   }
 }
 
-function handleResult(r) {
+async function handleResult(r) {
   showAiReply(r.reply || 'Done!');
   speak(r.reply || 'Done');
   if (r.action === 'add' && r.dueDate) {
-    items.push({ id: Date.now(), title: r.title||'Reminder', icon: r.icon||'📋', dueDate: r.dueDate, remindDaysBefore: r.remindDaysBefore||5, repeat: r.repeat||'none', createdAt: new Date().toISOString() });
-    saveItems(); renderCards();
+    const item = { id: Date.now(), title:r.title||'Reminder', icon:r.icon||'📋', dueDate:r.dueDate, remindDaysBefore:r.remindDaysBefore||2, repeat:r.repeat||'none', createdAt:new Date().toISOString() };
+    if (window._saveItem) await window._saveItem(item);
+    else { window._items.push(item); renderCards(); }
   }
   if (r.action === 'delete' && r.matchTitle) {
     const l = r.matchTitle.toLowerCase();
-    items = items.filter(i => !i.title.toLowerCase().includes(l));
-    saveItems(); renderCards();
+    const match = (window._items||[]).find(i => i.title.toLowerCase().includes(l));
+    if (match && window._deleteItem) await window._deleteItem(match.fbKey, match.id);
   }
 }
 
 // ══════════════════════════════════════════
-//  SPEECH
-// ══════════════════════════════════════════
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'en-AU'; u.rate = 0.95;
-  speechSynthesis.cancel(); speechSynthesis.speak(u);
-}
-
-function checkAndSpeakUrgent() {
-  const urgent = items.filter(i => daysUntil(i.dueDate) >= 0 && daysUntil(i.dueDate) <= 2);
-  if (urgent.length) speak(`Heads up — ${urgent.map(i=>i.title).join(' and ')} need${urgent.length===1?'s':''} attention soon.`);
-}
-
-// ══════════════════════════════════════════
-//  RENDER
+//  RENDER — urgency-only mode
 // ══════════════════════════════════════════
 function daysUntil(d) {
   const t = new Date(); t.setHours(0,0,0,0);
   return Math.round((new Date(d+'T00:00:00') - t) / 86400000);
 }
-function urgencyCls(d) { return d<=5?'urgent':d<=14?'soon':'ok'; }
+function urgencyCls(d) { return d<=2?'urgent':d<=7?'soon':'ok'; }
 function daysLbl(d) { return d<0?'overdue!':d===0?'today!':d===1?'tomorrow':`${d} days`; }
 
-function renderCards() {
+window.renderCards = function() {
   const list = document.getElementById('cardList');
   [...list.querySelectorAll('.card')].forEach(c=>c.remove());
 
-  // Roll over past-due repeating items
+  const items = window._items || [];
+
+  // Roll over past repeating items
   items.forEach(item => {
     if (item.repeat !== 'none' && daysUntil(item.dueDate) < 0) {
-      const d = new Date(item.dueDate + 'T00:00:00');
+      const d = new Date(item.dueDate+'T00:00:00');
       if (item.repeat==='monthly')   d.setMonth(d.getMonth()+1);
       if (item.repeat==='quarterly') d.setMonth(d.getMonth()+3);
       if (item.repeat==='biannual')  d.setMonth(d.getMonth()+6);
@@ -472,7 +631,9 @@ function renderCards() {
     }
   });
 
-  const visible = items.filter(i => daysUntil(i.dueDate) <= i.remindDaysBefore || daysUntil(i.dueDate) <= 0)
+  // URGENCY-ONLY: only show items within their remind window
+  const visible = items
+    .filter(i => daysUntil(i.dueDate) <= (i.remindDaysBefore || 2) || daysUntil(i.dueDate) <= 0)
     .sort((a,b) => daysUntil(a.dueDate) - daysUntil(b.dueDate));
 
   document.getElementById('emptyState').style.display = visible.length ? 'none' : 'block';
@@ -483,83 +644,103 @@ function renderCards() {
     const days = daysUntil(item.dueDate);
     const due = new Date(item.dueDate+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});
     const card = document.createElement('div');
-    card.className = `card ${urgencyCls(days)}`; card.dataset.id = item.id;
+    card.className = `card ${urgencyCls(days)}`;
     card.innerHTML = `
       <div class="card-icon">${item.icon}</div>
       <div class="card-body">
         <div class="card-title">${item.title}</div>
-        <div class="card-due">Due ${due} <span class="days-label">${daysLbl(days)}</span>${repeatLbls[item.repeat] ? ' · ' + repeatLbls[item.repeat] : ''}</div>
+        <div class="card-due">Due ${due} <span class="days-label">${daysLbl(days)}</span>${repeatLbls[item.repeat]?' · '+repeatLbls[item.repeat]:''}</div>
         <div class="card-actions">
-          <button class="chip primary" onclick="markDone(${item.id})">✓ Done</button>
-          <button class="chip" onclick="snooze(${item.id})">Snooze 3 days</button>
+          <button class="chip primary" onclick="markDone('${item.fbKey||''}',${item.id})">✓ Done</button>
+          <button class="chip" onclick="snooze('${item.fbKey||''}',${item.id})">Snooze 3 days</button>
         </div>
       </div>
-      <button class="del-btn" onclick="deleteItem(${item.id})">✕</button>`;
+      <button class="del-btn" onclick="deleteItem('${item.fbKey||''}',${item.id})">✕</button>`;
     list.appendChild(card);
   });
 
-  const urgentCount = visible.filter(i => daysUntil(i.dueDate) <= 5).length;
-  const g = document.getElementById('greetingText');
-  g.textContent = visible.length === 0
-    ? "You're all clear — nothing urgent 🎉"
+  const urgentCount = visible.filter(i=>daysUntil(i.dueDate)<=2).length;
+  document.getElementById('greetingText').textContent = visible.length === 0
+    ? "All clear Ed — nothing urgent right now 🎉"
     : urgentCount > 0
-      ? `${urgentCount} thing${urgentCount>1?'s':''} need${urgentCount===1?'s':''} attention soon`
-      : "Here's what's coming up";
+      ? `Ed, ${urgentCount} thing${urgentCount>1?'s':''} need${urgentCount===1?'s':''} attention now`
+      : "Here's what's coming up soon";
 
-  saveItems(); syncToSW();
-}
+  // Fire notification for urgent items
+  if (urgentCount > 0 && Notification.permission === 'granted') {
+    const names = visible.filter(i=>daysUntil(i.dueDate)<=2).map(i=>i.title).join(', ');
+    new Notification('⚠️ Hey Ed — action needed now', { body: names, tag:'urgent-items', requireInteraction:true });
+  }
+};
 
-function markDone(id) {
-  const item = items.find(i=>i.id===id); if (!item) return;
+async function markDone(fbKey, localId) {
+  const item = (window._items||[]).find(i => i.id === localId || i.fbKey === fbKey);
+  if (!item) return;
   if (item.repeat !== 'none') {
     const d = new Date(item.dueDate+'T00:00:00');
     if (item.repeat==='monthly')   d.setMonth(d.getMonth()+1);
     if (item.repeat==='quarterly') d.setMonth(d.getMonth()+3);
     if (item.repeat==='biannual')  d.setMonth(d.getMonth()+6);
     if (item.repeat==='yearly')    d.setFullYear(d.getFullYear()+1);
-    item.dueDate = d.toISOString().split('T')[0];
-    speak(`Great work! ${item.title} is set for next time.`);
+    if (window._updateItem) await window._updateItem(fbKey, localId, { dueDate: d.toISOString().split('T')[0] });
+    speak(`Done Ed! ${item.title} is set for next time.`);
   } else {
-    items = items.filter(i=>i.id!==id);
-    speak(`Nice one! ${item.title} is done.`);
+    if (window._deleteItem) await window._deleteItem(fbKey, localId);
+    speak(`Nice one Ed. ${item.title} is done.`);
   }
-  saveItems(); renderCards();
 }
 
-function snooze(id) {
-  const item = items.find(i=>i.id===id); if (!item) return;
+async function snooze(fbKey, localId) {
+  const item = (window._items||[]).find(i => i.id === localId || i.fbKey === fbKey);
+  if (!item) return;
   const d = new Date(item.dueDate+'T00:00:00'); d.setDate(d.getDate()+3);
-  item.dueDate = d.toISOString().split('T')[0];
-  saveItems(); renderCards(); speak("Snoozed for 3 days.");
+  if (window._updateItem) await window._updateItem(fbKey, localId, { dueDate: d.toISOString().split('T')[0] });
+  speak("Snoozed 3 days.");
 }
 
-function deleteItem(id) { items = items.filter(i=>i.id!==id); saveItems(); renderCards(); }
+async function deleteItem(fbKey, localId) {
+  if (window._deleteItem) await window._deleteItem(fbKey, localId);
+}
 
 // ══════════════════════════════════════════
 //  MANUAL MODAL
 // ══════════════════════════════════════════
 function openModal() { document.getElementById('modalOverlay').classList.add('open'); }
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
-function closeModalClick(e) { if (e.target===document.getElementById('modalOverlay')) closeModal(); }
-function saveManual() {
+function closeModalClick(e) { if(e.target===document.getElementById('modalOverlay')) closeModal(); }
+async function saveManual() {
   const title = document.getElementById('m_title').value.trim();
   const date = document.getElementById('m_date').value;
-  if (!title || !date) { alert('Fill in a name and date.'); return; }
-  items.push({ id: Date.now(), title, icon: document.getElementById('m_cat').value, dueDate: date, remindDaysBefore: parseInt(document.getElementById('m_remind').value), repeat: document.getElementById('m_repeat').value, createdAt: new Date().toISOString() });
-  saveItems(); renderCards(); closeModal();
+  if (!title||!date) { alert('Fill in a name and date.'); return; }
+  const cat = document.getElementById('m_cat').value;
+  const isMoney = ['💡','💳','📱'].includes(cat);
+  const item = { id:Date.now(), title, icon:cat, dueDate:date, remindDaysBefore:isMoney?7:2, repeat:document.getElementById('m_repeat').value, createdAt:new Date().toISOString() };
+  if (window._saveItem) await window._saveItem(item);
+  else { window._items.push(item); renderCards(); }
+  closeModal();
   document.getElementById('m_title').value = '';
-  speak(`Added ${title}.`);
+  speak(`Added ${title}, Ed.`);
 }
 
 // ══════════════════════════════════════════
-//  STORAGE & UI HELPERS
+//  HELPERS
 // ══════════════════════════════════════════
-function saveItems() { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); }
-
+function speak(text) {
+  if (!window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang='en-AU'; u.rate=0.95;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+function showBanner(type, msg) {
+  const b = document.getElementById('notifBanner');
+  document.getElementById('notifMsg').textContent = msg;
+  b.className = `notif-banner show ${type}`;
+  if (type==='ok') setTimeout(()=>b.classList.remove('show'), 5000);
+}
 function showAiReply(text) {
   document.getElementById('aiReplyText').textContent = text;
   document.getElementById('aiReply').classList.add('visible');
-  setTimeout(() => document.getElementById('aiReply').classList.remove('visible'), 8000);
+  setTimeout(()=>document.getElementById('aiReply').classList.remove('visible'), 8000);
 }
 </script>
 </body>
